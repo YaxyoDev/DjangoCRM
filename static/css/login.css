@@ -1,0 +1,406 @@
+/* ============================================================
+   GrandStudy — Login
+   ============================================================ */
+
+:root {
+    --bg-0: #0a0e1a;
+    --bg-1: #111a30;
+    --accent: #4f8cff;
+    --accent-2: #7c5cff;
+    --accent-3: #2fd6c4;
+    --text: #eef2fb;
+    --text-dim: #9aa6c2;
+    --line: rgba(255, 255, 255, .12);
+    --card-bg: rgba(20, 28, 50, .45);
+    --field-bg: rgba(255, 255, 255, .04);
+    --field-bg-focus: rgba(255, 255, 255, .07);
+    --radius: 20px;
+    --ease: cubic-bezier(.22, 1, .36, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+    font-family: 'Sora', sans-serif;
+    background:
+        radial-gradient(1200px 600px at 75% -10%, #1a2748 0%, transparent 55%),
+        radial-gradient(900px 500px at 10% 110%, #1c1640 0%, transparent 55%),
+        linear-gradient(160deg, var(--bg-0), var(--bg-1));
+    color: var(--text);
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    position: relative;
+    padding: 24px;
+}
+
+/* ============================================================
+   3D SCENE
+   ============================================================ */
+.scene {
+    position: fixed;
+    inset: 0;
+    perspective: 1000px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.shape { position: absolute; transform-style: preserve-3d; opacity: .85; }
+
+/* Torus (gradient ring) */
+.shape--torus {
+    top: 12%;
+    left: 14%;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 26px solid transparent;
+    background:
+        linear-gradient(var(--bg-0), var(--bg-0)) padding-box,
+        conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent)) border-box;
+    filter: blur(.3px) drop-shadow(0 20px 50px rgba(79, 140, 255, .35));
+    animation: float-a 14s var(--ease) infinite, spin-z 26s linear infinite;
+}
+
+/* Glowing sphere */
+.shape--sphere {
+    bottom: 14%;
+    right: 16%;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 28%, #bcd2ff 0%, var(--accent) 32%, #2748a0 70%, #16245a 100%);
+    box-shadow: inset -18px -22px 40px rgba(0, 0, 0, .5), 0 30px 70px rgba(79, 140, 255, .35);
+    animation: float-b 11s var(--ease) infinite;
+}
+
+/* Wireframe ring */
+.shape--ring {
+    top: 60%;
+    left: 8%;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid rgba(124, 92, 255, .5);
+    box-shadow: 0 0 40px rgba(124, 92, 255, .3);
+    transform: rotateX(72deg);
+    animation: spin-y 18s linear infinite, float-a 9s var(--ease) infinite;
+}
+
+/* Cube */
+.shape--cube {
+    top: 18%;
+    right: 18%;
+    width: 90px;
+    height: 90px;
+    animation: float-b 13s var(--ease) infinite, spin-cube 22s linear infinite;
+}
+.shape--cube .face {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, rgba(124, 92, 255, .22), rgba(79, 140, 255, .12));
+    border: 1px solid rgba(160, 180, 255, .4);
+    backdrop-filter: blur(2px);
+}
+.face--front  { transform: translateZ(45px); }
+.face--back   { transform: rotateY(180deg) translateZ(45px); }
+.face--right  { transform: rotateY(90deg) translateZ(45px); }
+.face--left   { transform: rotateY(-90deg) translateZ(45px); }
+.face--top    { transform: rotateX(90deg) translateZ(45px); }
+.face--bottom { transform: rotateX(-90deg) translateZ(45px); }
+
+/* Pyramid */
+.shape--pyramid {
+    bottom: 22%;
+    left: 30%;
+    width: 80px;
+    height: 80px;
+    animation: float-a 12s var(--ease) infinite, spin-y 20s linear infinite;
+}
+.pface {
+    position: absolute;
+    left: 0; top: 0;
+    width: 0; height: 0;
+}
+.pface--f, .pface--b, .pface--l, .pface--r {
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 70px solid rgba(47, 214, 196, .22);
+    transform-origin: 50% 100%;
+}
+.pface--f { transform: translateY(-70px) rotateX(30deg); }
+.pface--b { transform: translateY(-70px) rotateX(30deg) rotateY(180deg); }
+.pface--l { transform: translateY(-70px) rotateX(30deg) rotateY(90deg); }
+.pface--r { transform: translateY(-70px) rotateX(30deg) rotateY(-90deg); }
+
+/* Subtle grid */
+.grid-overlay {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, .03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(circle at 50% 50%, black 0%, transparent 75%);
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, black 0%, transparent 75%);
+}
+
+/* ============================================================
+   CARD
+   ============================================================ */
+.login-wrap {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 420px;
+    animation: card-in .9s var(--ease) both;
+}
+
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 44px 36px 38px;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, .5),
+        inset 0 1px 0 rgba(255, 255, 255, .12);
+    position: relative;
+    overflow: hidden;
+}
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .06) 50%, transparent 70%);
+    pointer-events: none;
+}
+
+.card__head { text-align: center; margin-bottom: 34px; }
+
+.logo-dot {
+    width: 52px; height: 52px;
+    margin: 0 auto 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 10px 30px rgba(79, 140, 255, .45), inset 0 1px 0 rgba(255, 255, 255, .4);
+    position: relative;
+}
+.logo-dot::after {
+    content: "G";
+    position: absolute; inset: 0;
+    display: grid; place-items: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700; font-size: 26px; color: #fff;
+}
+
+.card__title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -.5px;
+    background: linear-gradient(90deg, #fff, #b9cdff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.card__subtitle {
+    margin-top: 4px;
+    color: var(--text-dim);
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   ALERTS (Django messages)
+   ============================================================ */
+.alerts { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.alert {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    border: 1px solid transparent;
+    animation: card-in .5s var(--ease) both;
+}
+.alert--error {
+    background: rgba(255, 86, 86, .12);
+    border-color: rgba(255, 86, 86, .4);
+    color: #ffb4b4;
+}
+.alert--success {
+    background: rgba(47, 214, 196, .12);
+    border-color: rgba(47, 214, 196, .4);
+    color: #9af2e6;
+}
+.alert--info, .alert--warning {
+    background: rgba(79, 140, 255, .12);
+    border-color: rgba(79, 140, 255, .4);
+    color: #bcd2ff;
+}
+
+/* ============================================================
+   FIELDS — floating label
+   ============================================================ */
+.form { display: flex; flex-direction: column; gap: 20px; }
+
+.field { position: relative; }
+
+.field__input {
+    width: 100%;
+    height: 58px;
+    background: var(--field-bg);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 22px 16px 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+    transition: border-color .25s var(--ease), background .25s var(--ease), box-shadow .25s var(--ease);
+}
+.field__input--phone { padding-left: 62px; letter-spacing: .5px; }
+
+.field__input:focus {
+    border-color: var(--accent);
+    background: var(--field-bg-focus);
+    box-shadow: 0 0 0 4px rgba(79, 140, 255, .15);
+}
+
+/* prefix +998 — doim ko'rinadi */
+.field__prefix {
+    position: absolute;
+    left: 16px;
+    top: 30px;
+    color: var(--text);
+    font-size: 16px;
+    pointer-events: none;
+}
+
+/* label */
+.field__label {
+    position: absolute;
+    left: 16px;
+    top: 18px;
+    color: var(--text-dim);
+    font-size: 16px;
+    pointer-events: none;
+    transform-origin: left top;
+    transition: transform .22s var(--ease), color .22s var(--ease);
+}
+.field__input:focus ~ .field__label,
+.field__input:not(:placeholder-shown) ~ .field__label,
+.field.is-filled .field__label {
+    transform: translateY(-12px) scale(.74);
+    color: var(--accent);
+}
+/* telefon labeli: prefiks ustiga tushmasin, o'ngidan boshlansin */
+.field__label--phone { left: 62px; }
+.field__input--phone:focus ~ .field__label--phone,
+.field__input--phone:not(:placeholder-shown) ~ .field__label--phone,
+.field.is-filled .field__label--phone { left: 16px; }
+
+/* password ko'rsatish tugmasi */
+.field__toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 6px;
+    display: grid;
+    place-items: center;
+    transition: color .2s;
+}
+.field__toggle:hover { color: var(--text); }
+.eye { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============================================================
+   BUTTON
+   ============================================================ */
+.btn {
+    margin-top: 8px;
+    height: 56px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(79, 140, 255, .4);
+    transition: transform .2s var(--ease), box-shadow .25s var(--ease);
+}
+.btn__arrow { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--ease); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(79, 140, 255, .55); }
+.btn:hover .btn__arrow { transform: translateX(4px); }
+.btn:active { transform: translateY(0); }
+.btn::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -120%;
+    width: 60%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent);
+    transition: left .6s var(--ease);
+}
+.btn:hover::after { left: 130%; }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(30px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes float-a {
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 -28px; }
+}
+@keyframes float-b {
+    0%, 100% { translate: 0 0; }
+    50%      { translate: 0 26px; }
+}
+@keyframes spin-z { to { rotate: 360deg; } }
+@keyframes spin-y { to { transform: rotateX(72deg) rotateZ(360deg); } }
+@keyframes spin-cube { to { transform: rotateX(360deg) rotateY(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .shape, .login-wrap, .btn::after { animation: none !important; }
+}
+
+/* ============================================================
+   RESPONSIVE — phone
+   ============================================================ */
+@media (max-width: 480px) {
+    body { padding: 16px; }
+    .card { padding: 36px 22px 30px; border-radius: 18px; }
+    .card__title { font-size: 26px; }
+    .shape--torus { width: 150px; height: 150px; border-width: 18px; top: 6%; left: 6%; }
+    .shape--sphere { width: 110px; height: 110px; bottom: 8%; right: 8%; }
+    .shape--cube { width: 64px; height: 64px; }
+    .shape--cube .face { width: 64px; height: 64px; }
+    .face--front { transform: translateZ(32px); }
+    .face--back { transform: rotateY(180deg) translateZ(32px); }
+    .face--right { transform: rotateY(90deg) translateZ(32px); }
+    .face--left { transform: rotateY(-90deg) translateZ(32px); }
+    .face--top { transform: rotateX(90deg) translateZ(32px); }
+    .face--bottom { transform: rotateX(-90deg) translateZ(32px); }
+    .shape--pyramid, .shape--ring { display: none; }
+}
