@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Xodimlar — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">Xodimlar</h1>
+        {% if can_manage %}
+        <a href="{% url 'staff_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Xodim qo'shish
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtrlar -->
+    <form method="get" class="filters">
+        <input type="text" name="q" class="form-control" placeholder="Ism yoki telefon..." value="{{ f.q }}">
+        <select name="role" class="form-select">
+            <option value="">Rol (hammasi)</option>
+            {% for value, label in roles %}
+            <option value="{{ value }}" {% if f.role == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-funnel"></i> Filtrlash
+        </button>
+        <a href="{% url 'staff_list' %}" class="btn btn-outline-secondary">Tozalash</a>
+    </form>
+
+    <!-- Jadval -->
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Ism</th>
+                    <th>Telefon</th>
+                    <th>Rol</th>
+                    <th>Oylik</th>
+                    <th>Status</th>
+                    {% if can_view_detail or can_manage %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in staff %}
+                <tr>
+                    <td><img src="{{ item.user.avatar_url }}" alt="" class="table-avatar"></td>
+                    <td>{{ item.user.full_name }}</td>
+                    <td>{{ item.user.phone }}</td>
+                    <td>{{ item.user.get_role_display }}</td>
+                    <td>{% if item.profile %}{{ item.profile.salary }}{% else %}—{% endif %}</td>
+                    <td>
+                        {% if item.profile %}
+                        <span class="badge {% if item.profile.status == 'active' %}badge--active{% else %}badge--inactive{% endif %}">
+                            {{ item.profile.get_status_display }}
+                        </span>
+                        {% else %}—{% endif %}
+                    </td>
+                    {% if can_view_detail or can_manage %}
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if can_view_detail %}
+                            <a href="{% url 'staff_detail' item.user.id %}" class="icon-btn" title="Batafsil">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% endif %}
+                            {% if item.can_manage %}
+                            <a href="{% url 'staff_edit' item.user.id %}" class="icon-btn" title="O'zgartirish">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="table-empty">Xodimlar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

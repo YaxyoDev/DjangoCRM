@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Mening profilim — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <h1 class="page-title">Mening profilim</h1>
+
+    <div class="profile-card">
+        <form method="post" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Avatar -->
+            <div class="profile-avatar">
+                <img src="{{ request.user.avatar_url }}" alt="Avatar" class="profile-avatar__img" id="avatarPreview">
+                <div class="profile-avatar__actions">
+                    <label for="avatar" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-camera"></i> Rasmni o'zgartirish
+                    </label>
+                    <input type="file" id="avatar" name="avatar" accept="image/*" hidden>
+                </div>
+            </div>
+
+            <!-- Asosiy ma'lumotlar -->
+            <div class="profile-section">
+                <h2 class="profile-section__title">Asosiy ma'lumotlar</h2>
+
+                <div class="mb-3">
+                    <label class="form-label" for="full_name">To'liq ism</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control"
+                           value="{{ request.user.full_name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="phone">Telefon raqam</label>
+                    <input type="text" id="phone" name="phone" class="form-control"
+                           value="{{ request.user.phone }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control"
+                           value="{{ request.user.email|default:'' }}">
+                </div>
+
+                <!-- Rol o'zgartirilmaydi -->
+                <div class="mb-3">
+                    <label class="form-label">Rol</label>
+                    <input type="text" class="form-control" value="{{ request.user.get_role_display }}" disabled>
+                </div>
+            </div>
+
+            <!-- Parolni o'zgartirish -->
+            <div class="profile-section">
+                <h2 class="profile-section__title">Parolni o'zgartirish</h2>
+                <p class="profile-hint">Parolni o'zgartirmoqchi bo'lsangizgina to'ldiring.</p>
+
+                <div class="mb-3">
+                    <label class="form-label" for="old_password">Eski parol</label>
+                    <input type="password" id="old_password" name="old_password" class="form-control"
+                           autocomplete="current-password">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="new_password">Yangi parol</label>
+                    <input type="password" id="new_password" name="new_password" class="form-control"
+                           autocomplete="new-password">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="confirm_password">Yangi parolni tasdiqlang</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                           autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // rasm tanlanganda darhol ko'rsatish
+    const avatarInput = document.getElementById("avatar");
+    const avatarPreview = document.getElementById("avatarPreview");
+
+    avatarInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+            avatarPreview.src = URL.createObjectURL(file);
+        }
+    });
+</script>
+{% endblock %}

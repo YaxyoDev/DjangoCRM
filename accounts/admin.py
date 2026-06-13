@@ -20,12 +20,11 @@ class PupilProfileAdmin(admin.ModelAdmin):
 
 @admin.register(TeacherProfile)
 class TeacherProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "salary_percent", "balance", "status", "created_at"]
-    list_filter = ["status"]
+    list_display = ["user", "subject", "salary_percent", "balance", "status", "created_at"]
+    list_filter = ["status", "subject"]
     search_fields = ["user__full_name", "user__phone"]
     list_per_page = 20
     ordering = ["-created_at"]
-    filter_horizontal = ["subjects"]
 
 
 @admin.register(AdminProfile)

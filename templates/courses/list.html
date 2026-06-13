@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Kurslar — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">Kurslar</h1>
+        {% if can_manage %}
+        <a href="{% url 'course_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Kurs yaratish
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtrlar -->
+    <form method="get" class="filters">
+        <input type="text" name="q" class="form-control" placeholder="Kurs nomi..." value="{{ f.q }}">
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-funnel"></i> Filtrlash
+        </button>
+        <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">Tozalash</a>
+    </form>
+
+    <!-- Jadval -->
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Nomi</th>
+                    <th>Yaratilgan</th>
+                    {% if can_manage %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ course.name }}</td>
+                    <td>{{ course.created_at|date:"d.m.Y H:i" }}</td>
+                    {% if can_manage %}
+                    <td>
+                        <a href="{% url 'course_edit' course.id %}" class="icon-btn" title="O'zgartirish">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="table-empty">Kurslar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

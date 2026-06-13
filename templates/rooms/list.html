@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Xonalar — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">Xonalar</h1>
+        {% if can_manage %}
+        <a href="{% url 'room_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Xona yaratish
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtrlar -->
+    <form method="get" class="filters">
+        <input type="text" name="q" class="form-control" placeholder="Xona nomi..." value="{{ f.q }}">
+        <select name="status" class="form-select">
+            <option value="">Status (hammasi)</option>
+            {% for value, label in statuses %}
+            <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-funnel"></i> Filtrlash
+        </button>
+        <a href="{% url 'room_list' %}" class="btn btn-outline-secondary">Tozalash</a>
+    </form>
+
+    <!-- Jadval -->
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Nomi</th>
+                    <th>Status</th>
+                    <th>Yaratilgan</th>
+                    {% if can_manage %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td>{{ room.name }}</td>
+                    <td>
+                        <span class="badge {% if room.status == 'active' %}badge--active{% else %}badge--inactive{% endif %}">
+                            {{ room.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ room.created_at|date:"d.m.Y H:i" }}</td>
+                    {% if can_manage %}
+                    <td>
+                        <a href="{% url 'room_edit' room.id %}" class="icon-btn" title="O'zgartirish">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="table-empty">Xonalar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

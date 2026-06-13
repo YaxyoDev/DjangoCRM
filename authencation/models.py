@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.templatetags.static import static
 
 
 class UserManager(BaseUserManager):
@@ -31,6 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, unique=True)
     email = models.EmailField(blank=True, null=True, unique=True)
+    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
@@ -43,6 +45,13 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     
     @property
+    def avatar_url(self):
+        # rasm bo'lsa o'zini, bo'lmasa default static rasmni qaytaradi
+        if self.avatar:
+            return self.avatar.url
+        return static("images/default-avatar.png")
+
+    @property
     def is_admin(self):
         return self.role == self.Role.ADMIN
     
@@ -52,7 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     @property
     def is_teacher(self):
-        return self.role == self.Role.PUPIL
+        return self.role == self.Role.TEACHER
     
     @property
     def is_manager(self):

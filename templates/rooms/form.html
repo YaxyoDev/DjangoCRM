@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Xonani tahrirlash{% else %}Xona yaratish{% endif %} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">{% if is_edit %}Xonani tahrirlash{% else %}Yangi xona{% endif %}</h1>
+        <div class="d-flex gap-2">
+            {% if is_edit %}
+            <form method="post" action="{% url 'room_delete' obj_id %}"
+                  onsubmit="return confirm('Xonani o\'chirishni tasdiqlaysizmi?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> O'chirish
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'room_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <form method="post" action="">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="name">Xona nomi</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ f.name }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="status">Status</label>
+                <select id="status" name="status" class="form-select">
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

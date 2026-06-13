@@ -8,6 +8,7 @@ __pycache__/
 
 .project/
 db.sqlite3
+github.md
 
 # Distribution / packaging
 .Python

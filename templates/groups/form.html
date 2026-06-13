@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Guruhni tahrirlash{% else %}Guruh yaratish{% endif %} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">{% if is_edit %}Guruhni tahrirlash{% else %}Yangi guruh{% endif %}</h1>
+        <div class="d-flex gap-2">
+            {% if is_edit %}
+            <form method="post" action="{% url 'group_delete' group_id %}"
+                  onsubmit="return confirm('Guruhni o\'chirishni tasdiqlaysizmi? Bu amalni qaytarib bo\'lmaydi.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> O'chirish
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'group_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        {% if not courses or not teachers or not rooms or not times %}
+        <div class="alert alert-warning">
+            Guruh yaratish uchun kamida bitta <b>kurs</b>, <b>o'qituvchi</b>, <b>xona</b> va <b>vaqt</b> bo'lishi kerak.
+            Ularni admin panel orqali qo'shing.
+        </div>
+        {% endif %}
+
+        <form method="post" action="">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label" for="name">Guruh nomi</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ f.name }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="course">Kurs</label>
+                <select id="course" name="course" class="form-select" required>
+                    <option value="">Tanlang...</option>
+                    {% for c in courses %}
+                    <option value="{{ c.id }}" {% if f.course == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="teacher">O'qituvchi</label>
+                <select id="teacher" name="teacher" class="form-select" required>
+                    <option value="">Tanlang...</option>
+                    {% for t in teachers %}
+                    <option value="{{ t.id }}" {% if f.teacher == t.id|stringformat:"s" %}selected{% endif %}>{{ t.user.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="room">Xona</label>
+                <select id="room" name="room" class="form-select" required>
+                    <option value="">Tanlang...</option>
+                    {% for r in rooms %}
+                    <option value="{{ r.id }}" {% if f.room == r.id|stringformat:"s" %}selected{% endif %}>{{ r.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="time">Kun va vaqt</label>
+                <select id="time" name="time" class="form-select" required>
+                    <option value="">Tanlang...</option>
+                    {% for tm in times %}
+                    <option value="{{ tm.id }}" {% if f.time == tm.id|stringformat:"s" %}selected{% endif %}>{{ tm }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="price">Narx</label>
+                <input type="number" id="price" name="price" class="form-control" step="0.01" min="0" value="{{ f.price }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="status">Status</label>
+                <select id="status" name="status" class="form-select">
+                    {% for value, label in statuses %}
+                    <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

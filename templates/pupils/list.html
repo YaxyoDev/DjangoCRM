@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}O'quvchilar — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">O'quvchilar</h1>
+        {% if can_manage %}
+        <a href="{% url 'pupil_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> O'quvchi qo'shish
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtrlar -->
+    <form method="get" class="filters">
+        <input type="text" name="q" class="form-control" placeholder="Ism yoki telefon..." value="{{ f.q }}">
+        <select name="status" class="form-select">
+            <option value="">Status (hammasi)</option>
+            {% for value, label in statuses %}
+            <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-funnel"></i> Filtrlash
+        </button>
+        <a href="{% url 'pupil_list' %}" class="btn btn-outline-secondary">Tozalash</a>
+    </form>
+
+    <!-- Jadval -->
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Ism</th>
+                    <th>Telefon</th>
+                    <th>Ota-ona tel.</th>
+                    <th>Kurslar</th>
+                    <th>Balans</th>
+                    <th>Status</th>
+                    {% if can_manage %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for pupil in pupils %}
+                <tr>
+                    <td>
+                        <img src="{{ pupil.user.avatar_url }}" alt="" class="table-avatar">
+                    </td>
+                    <td>{{ pupil.user.full_name }}</td>
+                    <td>{{ pupil.user.phone }}</td>
+                    <td>{{ pupil.parent_phone_number|default:"—" }}</td>
+                    <td>{{ pupil.course_count }} ta</td>
+                    <td>{{ pupil.balance }}</td>
+                    <td>
+                        <span class="badge {% if pupil.status == 'active' %}badge--active{% else %}badge--inactive{% endif %}">
+                            {{ pupil.get_status_display }}
+                        </span>
+                    </td>
+                    {% if can_manage %}
+                    <td>
+                        <a href="{% url 'pupil_edit' pupil.id %}" class="icon-btn" title="O'zgartirish">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="table-empty">O'quvchilar topilmadi</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

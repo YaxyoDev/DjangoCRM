@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Kursni tahrirlash{% else %}Kurs yaratish{% endif %} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">{% if is_edit %}Kursni tahrirlash{% else %}Yangi kurs{% endif %}</h1>
+        <div class="d-flex gap-2">
+            {% if is_edit %}
+            <form method="post" action="{% url 'course_delete' obj_id %}"
+                  onsubmit="return confirm('Kursni o\'chirishni tasdiqlaysizmi?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> O'chirish
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <form method="post" action="">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="name">Kurs nomi</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ f.name }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Statistika — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">Statistika</h1>
+    </div>
+
+    <!-- Asosiy ko'rsatkichlar -->
+    <div class="stat-grid">
+        <div class="stat-card stat-card--primary">
+            <div class="stat-card__label">Umumiy balans (kassa)</div>
+            <div class="stat-card__value">{{ total_balance }} so'm</div>
+            <div class="stat-card__hint">Barcha to'lovlar − barcha oyliklar</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Bu oydagi to'lovlar</div>
+            <div class="stat-card__value text-success">+{{ month_income }} so'm</div>
+            <div class="stat-card__hint">Jami: {{ total_income }} so'm</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card__label">Bu oydagi oyliklar</div>
+            <div class="stat-card__value text-danger">−{{ month_salary }} so'm</div>
+            <div class="stat-card__hint">Jami: {{ total_salary }} so'm</div>
+        </div>
+    </div>
+
+    <!-- Oylik berish -->
+    <div class="profile-card" style="max-width:none;">
+        <div class="profile-section" style="margin-bottom:0;">
+            <h2 class="profile-section__title">Oylik berish (balansdan minus)</h2>
+            <form method="post" action="{% url 'statistics' %}">
+                {% csrf_token %}
+                <div class="salary-form">
+                    <div>
+                        <label class="form-label" for="employee">Xodim</label>
+                        <select id="employee" name="employee" class="form-select" required>
+                            <option value="">Tanlang...</option>
+                            {% for e in employees %}
+                            <option value="{{ e.id }}">{{ e.full_name }} ({{ e.get_role_display }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="amount">Summa</label>
+                        <input type="number" id="amount" name="amount" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    <div class="salary-form__note">
+                        <label class="form-label" for="note">Izoh</label>
+                        <input type="text" id="note" name="note" class="form-control" placeholder="Masalan: Iyun oyligi" required>
+                    </div>
+                    <div class="salary-form__btn">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cash-coin"></i> Oylik berish
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- O'qituvchilar balansi -->
+    <h2 class="profile-section__title" style="margin-top:8px;">O'qituvchilar balansi</h2>
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>O'qituvchi</th>
+                    <th>Fan</th>
+                    <th class="text-end">Balans</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in teachers %}
+                <tr>
+                    <td>{{ t.user.full_name }}</td>
+                    <td>{% if t.subject %}{{ t.subject.name }}{% else %}—{% endif %}</td>
+                    <td class="text-end">{{ t.balance }} so'm</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" class="table-empty">O'qituvchilar yo'q</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- So'nggi oylik to'lovlari -->
+    <h2 class="profile-section__title" style="margin-top:24px;">So'nggi oylik to'lovlari</h2>
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Xodim</th>
+                    <th class="text-end">Summa</th>
+                    <th>Izoh</th>
+                    <th>Kim berdi</th>
+                    <th>Sana</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recent %}
+                <tr>
+                    <td>{{ p.employee.full_name }}</td>
+                    <td class="text-end text-danger">−{{ p.amount }} so'm</td>
+                    <td>{{ p.note }}</td>
+                    <td>{{ p.paid_by.full_name }}</td>
+                    <td>{{ p.created_at|date:"d.m.Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="table-empty">Hali oylik to'lovlari yo'q</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

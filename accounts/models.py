@@ -35,7 +35,7 @@ class TeacherProfile(models.Model):
     )
     salary_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    subjects = models.ManyToManyField("education.Course", related_name="teachers", blank=True)
+    subject = models.ForeignKey("education.Course", on_delete=models.SET_NULL, null=True, blank=True, related_name="teachers")
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -54,6 +54,7 @@ class AdminProfile(models.Model):
         related_name="admin_profile",
     )
     salary = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -72,6 +73,7 @@ class ManagerProfile(models.Model):
         related_name="manager_profile",
     )
     salary = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -90,6 +92,7 @@ class CashierProfile(models.Model):
         related_name="cashier_profile",
     )
     salary = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -108,6 +111,7 @@ class RegisterProfile(models.Model):
         related_name="register_profile",
     )
     salary = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.ACTIVE)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -33,6 +33,10 @@ class Time(models.Model):
     time_start = models.TimeField()
     time_end = models.TimeField()
 
+    class Meta:
+        # bir xil kun + boshlanish + tugash takrorlanmasin
+        unique_together = ["days", "time_start", "time_end"]
+
     def __str__(self):
         return f"{self.get_days_display()} ({self.time_start} - {self.time_end})"
 
@@ -82,3 +86,22 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.pupil.user.full_name} - {self.amount}"
+
+
+class SalaryPayment(models.Model):
+    """O'qituvchi yoki xodimga berilgan oylik (umumiy balansdan minus)."""
+    employee = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="salary_payments"
+    )
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    note = models.TextField()  # izoh (majburiy)
+    paid_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="given_salary_payments"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.employee.full_name} - {self.amount}"

@@ -34,7 +34,7 @@
 -user- (OneToOne -> User)
 -salary_percent- (Decimal)
 -balance- (Decimal)
--subjects- (ManyToMany -> Course)
+-subject- (ForeignKey -> Course, bitta fan)
 -status- (active, archived)
 -created_at-
 # full_name, phone -> user orqali keladi

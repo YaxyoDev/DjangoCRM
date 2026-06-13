@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">{{ group.name }}</h1>
+        <div class="d-flex gap-2">
+            {% if can_manage %}
+            <a href="{% url 'group_edit' group.id %}" class="btn btn-outline-primary">
+                <i class="bi bi-pencil"></i> Tahrirlash
+            </a>
+            {% endif %}
+            <a href="{% url 'group_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <!-- Guruh ma'lumotlari -->
+    <div class="profile-card" style="max-width:none;">
+        <div class="profile-section" style="margin-bottom:0;">
+            <h2 class="profile-section__title">Guruh ma'lumotlari</h2>
+            <div class="stat-grid">
+                <div><label class="form-label">Kurs</label><div>{{ group.course.name }}</div></div>
+                <div><label class="form-label">O'qituvchi</label><div>{{ group.teacher.user.full_name }}</div></div>
+                <div><label class="form-label">Xona</label><div>{{ group.room.name }}</div></div>
+                <div><label class="form-label">Vaqt</label><div>{{ group.time }}</div></div>
+                <div><label class="form-label">Narx</label><div>{{ group.price }} so'm</div></div>
+                <div>
+                    <label class="form-label">Status</label>
+                    <div>
+                        <span class="badge {% if group.status == 'active' %}badge--active{% else %}badge--inactive{% endif %}">
+                            {{ group.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- O'quvchi qo'shish (ism orqali qidirish) -->
+    {% if can_manage %}
+    <div class="profile-card" style="max-width:none;">
+        <div class="profile-section" style="margin-bottom:0;">
+            <h2 class="profile-section__title">O'quvchi qo'shish</h2>
+
+            <!-- Qidiruv -->
+            <form method="get" action="{% url 'group_detail' group.id %}" class="filters">
+                <input type="text" name="q" class="form-control" autofocus
+                       placeholder="O'quvchi ismi yoki telefoni..." value="{{ q }}">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-search"></i> Qidirish
+                </button>
+                {% if q %}
+                <a href="{% url 'group_detail' group.id %}" class="btn btn-outline-secondary">Tozalash</a>
+                {% endif %}
+            </form>
+
+            <!-- Qidiruv natijalari -->
+            {% if q %}
+                {% if candidates %}
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ism</th>
+                            <th>Telefon</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in candidates %}
+                        <tr>
+                            <td>{{ p.user.full_name }}</td>
+                            <td>{{ p.user.phone }}</td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'enrollment_create' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="group" value="{{ group.id }}">
+                                    <input type="hidden" name="pupil" value="{{ p.id }}">
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-person-plus"></i> Qo'shish
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="profile-hint">"{{ q }}" bo'yicha o'quvchi topilmadi (yoki allaqachon guruhda).</p>
+                {% endif %}
+            {% else %}
+            <p class="profile-hint">O'quvchini qo'shish uchun ismini yozib qidiring.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- O'quvchilar ro'yxati -->
+    <h2 class="profile-section__title" style="margin-top:8px;">
+        O'quvchilar ({{ enrollments|length }} ta)
+    </h2>
+    <div class="table-card">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Ism</th>
+                    <th>Telefon</th>
+                    <th>Balans</th>
+                    <th>Status</th>
+                    {% if can_manage %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in enrollments %}
+                <tr>
+                    <td>{{ e.pupil.user.full_name }}</td>
+                    <td>{{ e.pupil.user.phone }}</td>
+                    <td>{{ e.pupil.balance }} so'm</td>
+                    <td>
+                        <span class="badge {% if e.status == 'active' %}badge--active{% else %}badge--inactive{% endif %}">
+                            {{ e.get_status_display }}
+                        </span>
+                    </td>
+                    {% if can_manage %}
+                    <td>
+                        <form method="post" action="{% url 'enrollment_delete' e.id %}"
+                              onsubmit="return confirm('Ushbu o\'quvchini guruhdan chiqarasizmi?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="icon-btn icon-btn--danger" title="Guruhdan chiqarish">
+                                <i class="bi bi-person-dash"></i>
+                            </button>
+                        </form>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="table-empty">Bu guruhda hali o'quvchi yo'q</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

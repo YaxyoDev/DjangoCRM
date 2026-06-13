@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ obj.full_name }} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">Xodim ma'lumotlari</h1>
+        <div class="d-flex gap-2">
+            {% if can_manage %}
+            <a href="{% url 'staff_edit' obj.id %}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> O'zgartirish
+            </a>
+            {% endif %}
+            <a href="{% url 'staff_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <!-- Shaxsiy ma'lumotlar -->
+        <div class="profile-section">
+            <h2 class="profile-section__title">Shaxsiy ma'lumotlar</h2>
+
+            <div class="mb-3">
+                <img src="{{ obj.avatar_url }}" alt="" class="table-avatar" style="width:96px;height:96px;">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">To'liq ism</label>
+                <div>{{ obj.full_name }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Telefon raqam</label>
+                <div>{{ obj.phone }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <div>{{ obj.email|default:"—" }}</div>
+            </div>
+        </div>
+
+        <!-- Ish ma'lumotlari -->
+        <div class="profile-section">
+            <h2 class="profile-section__title">Ish ma'lumotlari</h2>
+
+            <div class="mb-3">
+                <label class="form-label">Rol</label>
+                <div>{{ obj.get_role_display }}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Oylik</label>
+                <div>{% if profile %}{{ profile.salary }}{% else %}—{% endif %}</div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <div>
+                    {% if profile %}
+                    <span class="badge {% if profile.status == 'active' %}badge--active{% else %}badge--inactive{% endif %}">
+                        {{ profile.get_status_display }}
+                    </span>
+                    {% else %}—{% endif %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Ro'yxatdan o'tgan sana</label>
+                <div>{{ obj.date_joined|date:"d.m.Y H:i" }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

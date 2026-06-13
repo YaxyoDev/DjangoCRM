@@ -1,0 +1,91 @@
+{% load static %}
+<aside class="sidebar">
+    <div class="sidebar-top">
+        <div class="sidebar-brand">
+            <i class="bi bi-mortarboard-fill"></i>
+            <span>Grand Study</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <!-- Hamma rol ko'radi -->
+        <a href="{% url 'dashboard' %}" class="nav-item">
+            <i class="bi bi-grid-1x2"></i> <span>Dashboard</span>
+        </a>
+
+        <!-- O'quvchilar: admin, registrator (to'liq), manager, cashier (ko'rish) -->
+        {% if request.user.role == "admin" or request.user.role == "manager" or request.user.role == "registrator" or request.user.role == "cashier" %}
+        <a href="{% url 'pupil_list' %}" class="nav-item">
+            <i class="bi bi-people"></i> <span>O'quvchilar</span>
+        </a>
+        {% endif %}
+
+        <!-- O'qituvchilar: admin, manager (to'liq), cashier, registrator (ko'rish) -->
+        {% if request.user.role == "admin" or request.user.role == "manager" or request.user.role == "cashier" or request.user.role == "registrator" %}
+        <a href="{% url 'teacher_list' %}" class="nav-item">
+            <i class="bi bi-person-workspace"></i> <span>O'qituvchilar</span>
+        </a>
+        {% endif %}
+
+        <!-- Guruhlar: admin, manager (to'liq), register/teacher (ko'rish) -->
+        {% if request.user.role == "admin" or request.user.role == "manager" or request.user.role == "registrator" or request.user.role == "teacher" %}
+        <a href="{% url 'group_list' %}" class="nav-item">
+            <i class="bi bi-collection"></i> <span>Guruhlar</span>
+        </a>
+        {% endif %}
+
+        <!-- Kurs / Xona / Vaqt: admin, manager (to'liq), cashier, registrator (ko'rish) -->
+        {% if request.user.role == "admin" or request.user.role == "manager" or request.user.role == "cashier" or request.user.role == "registrator" %}
+        <a href="{% url 'course_list' %}" class="nav-item">
+            <i class="bi bi-book"></i> <span>Kurslar</span>
+        </a>
+        <a href="{% url 'room_list' %}" class="nav-item">
+            <i class="bi bi-door-open"></i> <span>Xonalar</span>
+        </a>
+        <a href="{% url 'time_list' %}" class="nav-item">
+            <i class="bi bi-clock"></i> <span>Vaqtlar</span>
+        </a>
+        {% endif %}
+
+        <!-- To'lovlar: admin (to'liq), manager (ko'rish), cashier (to'liq) -->
+        {% if request.user.role == "admin" or request.user.role == "manager" or request.user.role == "cashier" %}
+        <a href="#" class="nav-item">
+            <i class="bi bi-cash-stack"></i> <span>To'lovlar</span>
+        </a>
+        {% endif %}
+
+        <!-- Statistika: admin va cashier -->
+        {% if request.user.role == "admin" or request.user.role == "cashier" %}
+        <a href="{% url 'statistics' %}" class="nav-item">
+            <i class="bi bi-bar-chart-line"></i> <span>Statistika</span>
+        </a>
+        {% endif %}
+
+        <!-- Xodimlar: admin (to'liq), manager, cashier (ko'rish). registrator KO'RMAYDI -->
+        {% if request.user.role == "admin" or request.user.role == "manager" or request.user.role == "cashier" %}
+        <a href="{% url 'staff_list' %}" class="nav-item">
+            <i class="bi bi-person-badge"></i> <span>Xodimlar</span>
+        </a>
+        {% endif %}
+
+        <!-- Mening guruhlarim: faqat teacher -->
+        {% if request.user.role == "teacher" %}
+        <a href="#" class="nav-item">
+            <i class="bi bi-easel"></i> <span>Mening guruhlarim</span>
+        </a>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="{% url 'profile' %}" class="user-info">
+            <img src="{{ request.user.avatar_url }}" alt="Avatar">
+            <div>
+                <div class="user-name">{{ request.user.full_name }}</div>
+                <div class="user-role">{{ request.user.get_role_display }}</div>
+            </div>
+        </a>
+        <a href="{% url 'logout' %}" class="logout-btn">
+            <i class="bi bi-box-arrow-right"></i> Chiqish
+        </a>
+    </div>
+</aside>

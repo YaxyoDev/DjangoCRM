@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Vaqtni tahrirlash{% else %}Vaqt yaratish{% endif %} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">{% if is_edit %}Vaqtni tahrirlash{% else %}Yangi vaqt{% endif %}</h1>
+        <div class="d-flex gap-2">
+            {% if is_edit %}
+            <form method="post" action="{% url 'time_delete' obj_id %}"
+                  onsubmit="return confirm('Vaqtni o\'chirishni tasdiqlaysizmi?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> O'chirish
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'time_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <form method="post" action="">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" for="days">Kun</label>
+                <select id="days" name="days" class="form-select" required>
+                    <option value="">Tanlang...</option>
+                    {% for value, label in days_choices %}
+                    <option value="{{ value }}" {% if f.days == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="time_start">Boshlanish vaqti</label>
+                <input type="time" id="time_start" name="time_start" class="form-control" value="{{ f.time_start }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="time_end">Tugash vaqti</label>
+                <input type="time" id="time_end" name="time_end" class="form-control" value="{{ f.time_end }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

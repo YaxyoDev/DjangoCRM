@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}O'qituvchini tahrirlash{% else %}O'qituvchi qo'shish{% endif %} — Academia CRM{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page-header">
+        <h1 class="page-title">{% if is_edit %}O'qituvchini tahrirlash{% else %}Yangi o'qituvchi{% endif %}</h1>
+        <div class="d-flex gap-2">
+            {% if is_edit %}
+            <form method="post" action="{% url 'teacher_delete' obj_id %}"
+                  onsubmit="return confirm('O\'qituvchini o\'chirishni tasdiqlaysizmi? Bu amalni qaytarib bo\'lmaydi.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> O'chirish
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'teacher_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <form method="post" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Shaxsiy ma'lumotlar -->
+            <div class="profile-section">
+                <h2 class="profile-section__title">Shaxsiy ma'lumotlar</h2>
+
+                <div class="mb-3">
+                    <label class="form-label" for="full_name">To'liq ism</label>
+                    <input type="text" id="full_name" name="full_name" class="form-control" value="{{ f.full_name }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="phone">Telefon raqam</label>
+                    <input type="text" id="phone" name="phone" class="form-control" value="{{ f.phone }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ f.email }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="avatar">Rasm</label>
+                    {% if is_edit %}
+                    <div class="mb-2">
+                        <img src="{{ avatar_url }}" alt="" class="table-avatar" style="width:64px;height:64px;">
+                    </div>
+                    {% endif %}
+                    <input type="file" id="avatar" name="avatar" class="form-control" accept="image/*">
+                    {% if is_edit and has_avatar %}
+                    <div class="form-check mt-2">
+                        <input type="checkbox" class="form-check-input" id="remove_avatar" name="remove_avatar">
+                        <label class="form-check-label" for="remove_avatar">Rasmni o'chirish</label>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if not is_edit or request.user.is_admin %}
+                <div class="mb-3">
+                    <label class="form-label" for="password">
+                        Parol
+                        {% if is_edit %}<small class="text-muted">(o'zgartirmoqchi bo'lsangizgina to'ldiring)</small>{% endif %}
+                    </label>
+                    <input type="password" id="password" name="password" class="form-control"
+                           autocomplete="new-password" {% if not is_edit %}required{% endif %}>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Ish ma'lumotlari -->
+            <div class="profile-section">
+                <h2 class="profile-section__title">Ish ma'lumotlari</h2>
+
+                <div class="mb-3">
+                    <label class="form-label" for="salary_percent">Oylik foizi (%)</label>
+                    <input type="number" id="salary_percent" name="salary_percent" class="form-control"
+                           step="0.01" min="0" max="100" value="{{ f.salary_percent }}">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="subject">Fan</label>
+                    <select id="subject" name="subject" class="form-select">
+                        <option value="">Tanlanmagan</option>
+                        {% for c in courses %}
+                        <option value="{{ c.id }}" {% if f.subject == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="status">Status</label>
+                    <select id="status" name="status" class="form-select">
+                        {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if f.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Saqlash
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
